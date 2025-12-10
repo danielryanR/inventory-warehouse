@@ -3,6 +3,5 @@ package com.godsvessel.inventory_warehouse.repository;
 import com.godsvessel.inventory_warehouse.model.Warehouse;
 import org.springframework.data.jpa.repository.JpaRepository;
 
-public class WarehouseRepository extends JpaRepository<Warehouse, Long> {
-
+public interface WarehouseRepository extends JpaRepository<Warehouse, Long> {
 }
