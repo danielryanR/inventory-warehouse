@@ -1,0 +1,14 @@
+{
+    "configurations": [
+        {
+            "type": "java",
+            "name": "Spring Boot-InventoryWarehouseApplication<inventory-warehouse>",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "mainClass": "com.godsvessel.inventory_warehouse.InventoryWarehouseApplication",
+            "projectName": "inventory-warehouse",
+            "args": "",
+            "envFile": "${workspaceFolder}/.env"
+        }
+    ]
+}
