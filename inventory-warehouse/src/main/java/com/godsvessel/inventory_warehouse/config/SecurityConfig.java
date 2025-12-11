@@ -17,24 +17,26 @@ import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 public class SecurityConfig {
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        http
-            .csrf(csrf -> csrf.disable()) // API + React-friendly
-            .authorizeHttpRequests(auth -> auth
-                // Anyone can GET data
-                .requestMatchers(HttpMethod.GET, "/api/**").permitAll()
-                // Only admin can POST PUT DELETE
-                .requestMatchers(HttpMethod.POST, "/api/**").authenticated()
-                .requestMatchers(HttpMethod.PUT, "/api/**").authenticated()
-                .requestMatchers(HttpMethod.DELETE, "/api/**").authenticated()
-                // Everything else must be authenticated
-                .anyRequest().authenticated()
-            )
-            // Pop-up login for Postman/browser
-            .httpBasic(Customizer.withDefaults());
+public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+    http
+        .csrf(csrf -> csrf.disable()) // for API + React
+        .authorizeHttpRequests(auth -> auth
+            // 👇 Public: anyone can GET data
+            .requestMatchers(HttpMethod.GET, "/api/**").permitAll()
 
-        return http.build();
-    }
+            // 👇 Protected: only authenticated users can modify data
+            .requestMatchers(HttpMethod.POST, "/api/**").authenticated()
+            .requestMatchers(HttpMethod.PUT, "/api/**").authenticated()
+            .requestMatchers(HttpMethod.DELETE, "/api/**").authenticated()
+
+            // 👇 Everything else (like "/", "/favicon.ico", etc.) is public
+            .anyRequest().permitAll()
+        )
+        // Simple HTTP Basic auth (for Postman / tools)
+        .httpBasic(Customizer.withDefaults());
+
+    return http.build();
+}
 
     @Bean
     public UserDetailsService users() {
