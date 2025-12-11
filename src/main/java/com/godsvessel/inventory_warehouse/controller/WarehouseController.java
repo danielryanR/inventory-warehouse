@@ -1,8 +1,10 @@
+// src/main/java/com/godsvessel/inventory_warehouse/controller/WarehouseController.java
 package com.godsvessel.inventory_warehouse.controller;
 
 import com.godsvessel.inventory_warehouse.model.Warehouse;
 import com.godsvessel.inventory_warehouse.service.WarehouseService;
 
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -16,6 +18,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/warehouses")
+@CrossOrigin(origins = "http://localhost:5173")
 public class WarehouseController {
 
     private final WarehouseService service;
