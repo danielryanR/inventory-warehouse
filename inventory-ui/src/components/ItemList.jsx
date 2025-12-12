@@ -47,7 +47,7 @@ function ItemList({ items, onDelete, onEdit, isAdmin, onTransfer }) {
                       type="button"
                       onClick={() => onTransfer(item.id, 1, 5)} // ex: move 5 units to warehouse id 1
                       >
-                        Transfer 5 → WH 1
+                        Shipment Transfer 
                     </button>
                   </>
                 ) : (
