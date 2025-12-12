@@ -27,6 +27,12 @@ public class ProductController {
         return service.getById(id);
     }
 
+    @PutMapping("/{id}")
+    public Product update(@PathVariable Long id, @RequestBody Product product) {
+        product.setId(id);
+        return service.save(product);
+    }
+
     @PostMapping
     public Product create(@RequestBody Product product) {
         return service.save(product);

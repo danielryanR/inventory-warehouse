@@ -14,11 +14,14 @@ public class Item {
     private String description;
     private String size;        // S, M, L, XL
     private int quantity;
-    private String imageUrl;    // link to picture if you want
+
 
     @ManyToOne
     @JoinColumn(name = "warehouse_id")
     private Warehouse warehouse;
+
+    @Column(name = "image_url")
+    private String imageUrl;
 
     public Item() {
     }

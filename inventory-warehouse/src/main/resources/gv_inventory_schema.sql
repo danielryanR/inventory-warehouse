@@ -1,14 +1,18 @@
 -- =========================================================
--- God’s Vessel Inventory Schema + Seed Data
--- Safe to re-run: drops tables, recreates, reseeds
+-- God’s Vessel Inventory Schema
+-- Drops tables, Recreates, Reseeds
 -- =========================================================
 
--- 1) Drop tables in FK order (child first)
+-- ==================================================
+-- 1. Drop tables in FK order (child first)
+-- ==================================================
 DROP TABLE IF EXISTS item;
 DROP TABLE IF EXISTS product;
 DROP TABLE IF EXISTS warehouse;
 
--- 2) Warehouse table
+-- =========================
+-- 2. Warehouse table
+-- =========================
 CREATE TABLE warehouse (
     id           BIGSERIAL PRIMARY KEY,
     name         VARCHAR(100) NOT NULL,
@@ -16,9 +20,11 @@ CREATE TABLE warehouse (
     max_capacity INTEGER      NOT NULL
 );
 
--- 3) Item (shirt) table
--- Each row = a specific inventory batch at ONE warehouse.
+-- ==================================================
+-- 3. Item (shirt) table
+-- Each row = specific inventory batch @ ONE warehouse.
 -- Same design at multiple warehouses = separate rows with same SKU or related name.
+-- ==================================================
 CREATE TABLE item (
     id           BIGSERIAL PRIMARY KEY,
     name         VARCHAR(150) NOT NULL,
@@ -26,7 +32,7 @@ CREATE TABLE item (
     description  TEXT,
     size         VARCHAR(10),
     quantity     INTEGER      NOT NULL DEFAULT 0 CHECK (quantity >= 0),
-    imageurl     TEXT,
+    image_url     TEXT,
     warehouse_id BIGINT       NOT NULL,
     CONSTRAINT fk_item_warehouse
         FOREIGN KEY (warehouse_id)
@@ -35,14 +41,14 @@ CREATE TABLE item (
 );
 
 -- =========================
--- Product table (master catalog)
+-- 4. Product table (master catalog)
 -- =========================
 CREATE TABLE IF NOT EXISTS product (
     id          BIGSERIAL PRIMARY KEY,
     name        VARCHAR(100) NOT NULL,
     sku         VARCHAR(50)  NOT NULL UNIQUE,
     description TEXT,
-    imageurl    VARCHAR(255)
+    image_url    VARCHAR(255)
 );
 
 -- =========================================================
@@ -59,7 +65,7 @@ VALUES
 -- Seed Data: Items (Shirts / Hoodies)
 -- Each row is a physical stock batch at ONE warehouse.
 -- =========================================================
-INSERT INTO item (name, sku, description, size, quantity, imageurl, warehouse_id)
+INSERT INTO item (name, sku, description, size, quantity, image_url, warehouse_id)
 VALUES
     -- Main Warehouse stock
     ('Jehovah Jireh Definition Tee - Black',
@@ -108,14 +114,24 @@ VALUES
 -- =========================================================
 -- Seed data for product catalog
 -- =========================================================
-INSERT INTO product (name, sku, description, imageurl) VALUES
+INSERT INTO product (name, sku, description, image_url) VALUES
   ('Jehovah Jireh Definition Tee', 'GV-JJ-BLK-M',
-   'Bible verse "Jehovah Jireh" definition shirt', 'https://example.com/images/jj-black-m.png'),
+   'Bible verse "Jehovah Jireh" definition shirt',
+   'https://example.com/images/jj-black-m.png'),
+   
   ('El Shaddai Definition Tee', 'GV-ES-WHT-L',
-   'El Shaddai name of God definition shirt', 'https://example.com/images/es-white-l.png'),
+   'El Shaddai name of God definition shirt',
+   'https://example.com/images/es-white-l.png'),
+   
   ('Agape Love Tee', 'GV-AG-BLK-L',
-   'Love of God themed shirt', 'https://example.com/images/agape-black-l.png'),
+   'Love of God themed shirt',
+   'https://example.com/images/agape-black-l.png'),
+   
   ('Grace Upon Grace Tee', 'GV-GR-WHT-M',
-   'Grace upon grace shirt', 'https://example.com/images/grace-white-m.png'),
+   'Grace upon grace shirt',
+   'https://example.com/images/grace-white-m.png'),
+   
   ('Hosanna Hoodie', 'GV-HS-GRY-XL',
    'Hosanna hoodie', 'https://example.com/images/hosanna-grey-xl.png');
+
+   

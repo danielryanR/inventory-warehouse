@@ -3,30 +3,31 @@ package com.godsvessel.inventory_warehouse.model;
 import jakarta.persistence.*;
 
 @Entity
-@Table(name = "product")
-@Column(name = "imageurl")
-private String imageUrl;
+@Table(name = "product")   // matches your product table
 public class Product {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false, length = 100)
     private String name;
 
-    @Column(nullable = false, unique = true, length = 50)
+    @Column(nullable = false, unique = true)
     private String sku;
 
-    @Column(length = 1000)
+    @Column(columnDefinition = "TEXT")
     private String description;
 
+
+    @Column(name = "image_url")
     private String imageUrl;
 
-    // ---- getters & setters ----
+    // --- getters & setters ---
+
     public Long getId() {
         return id;
     }
+
     public void setId(Long id) {
         this.id = id;
     }
@@ -34,6 +35,7 @@ public class Product {
     public String getName() {
         return name;
     }
+
     public void setName(String name) {
         this.name = name;
     }
@@ -41,6 +43,7 @@ public class Product {
     public String getSku() {
         return sku;
     }
+
     public void setSku(String sku) {
         this.sku = sku;
     }
@@ -48,6 +51,7 @@ public class Product {
     public String getDescription() {
         return description;
     }
+
     public void setDescription(String description) {
         this.description = description;
     }
@@ -55,6 +59,7 @@ public class Product {
     public String getImageUrl() {
         return imageUrl;
     }
+
     public void setImageUrl(String imageUrl) {
         this.imageUrl = imageUrl;
     }
