@@ -7,6 +7,7 @@ import com.godsvessel.inventory_warehouse.service.ItemService;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -50,6 +51,14 @@ public class ItemController {
     @PutMapping("/{id}")
     public Item update(@PathVariable Long id, @RequestBody Item item) {
         item.setId(id);
-        return service.save(item);
+            return service.save(item);
+    }
+
+    @PostMapping("/{id}/transfer")
+    public Item transfer(
+        @PathVariable Long id,
+        @RequestParam Long targetWarehouseId,
+        @RequestParam int quantity) {
+            return service.transfer(id, targetWarehouseId, quantity);
     }
 }

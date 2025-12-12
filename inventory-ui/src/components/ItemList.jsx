@@ -1,10 +1,9 @@
-// src/ItemList.jsx
+// src/components/ItemList.jsx
 import React from "react";
 
-function ItemList({ items, onDelete, onEdit }) {
+function ItemList({ items, onDelete, onEdit, isAdmin, onTransfer }) {
   return (
     <div className="card">
-      <h2 className="section-title">Items</h2>
       <p className="section-subtitle">Showing all items</p>
 
       <table className="table">
@@ -27,20 +26,32 @@ function ItemList({ items, onDelete, onEdit }) {
               <td>{item.quantity}</td>
               <td>{item.warehouse?.name}</td>
               <td className="actions-col">
-                <button
-                  className="btn btn-secondary"
-                  type="button"
-                  onClick={() => onEdit(item)}
-                >
-                  Edit
-                </button>
-                <button
-                  className="btn btn-danger"
-                  type="button"
-                  onClick={() => onDelete(item.id)}
-                >
-                  Delete
-                </button>
+                {isAdmin ? (
+                  <>
+                    <button
+                      className="btn btn-secondary"
+                      type="button"
+                      onClick={() => onEdit(item)}
+                    >
+                      Edit
+                    </button>
+                    <button
+                      className="btn btn-danger"
+                      type="button"
+                      onClick={() => onDelete(item.id, item.name)}
+                    >
+                      Delete
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => onTransfer(item.id, 1, 5)} // ex: move 5 units to warehouse id 1
+                      >
+                        Transfer 5 → WH 1
+                    </button>
+                  </>
+                ) : (
+                  <span className="muted">Admin only</span>
+                )}
               </td>
             </tr>
           ))}

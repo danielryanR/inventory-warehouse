@@ -9,7 +9,7 @@ function NewItemForm({ warehouses, onCreate, isSubmitting }) {
     size: "",
     quantity: "",
     warehouseId: "",
-    imageUrl: "",
+    imageUrl: "", // still here but hidden so I don't have to present / optional
   });
 
   function handleChange(e) {
@@ -19,6 +19,7 @@ function NewItemForm({ warehouses, onCreate, isSubmitting }) {
 
   async function handleSubmit(e) {
     e.preventDefault();
+
     if (
       !form.name ||
       !form.sku ||
@@ -36,21 +37,24 @@ function NewItemForm({ warehouses, onCreate, isSubmitting }) {
       description: form.description,
       size: form.size,
       quantity: Number(form.quantity),
-      imageUrl: form.imageUrl || null,
       warehouseId: Number(form.warehouseId),
+      imageUrl: form.imageUrl || null,
     };
 
-    await onCreate(payload);
-
-    setForm({
-      name: "",
-      sku: "",
-      description: "",
-      size: "",
-      quantity: "",
-      warehouseId: "",
-      imageUrl: "",
-    });
+    try {
+      await onCreate(payload); // App.jsx will POST to backend
+      setForm({
+        name: "",
+        sku: "",
+        description: "",
+        size: "",
+        quantity: "",
+        warehouseId: "",
+        imageUrl: "",
+      });
+    } catch (err) {
+      console.error("Error in NewItemForm onCreate", err);
+    }
   }
 
   return (
@@ -85,7 +89,7 @@ function NewItemForm({ warehouses, onCreate, isSubmitting }) {
               name="size"
               value={form.size}
               onChange={handleChange}
-              placeholder="M / L / XL"
+              placeholder="S / M / L / XL"
             />
           </label>
           <label>
@@ -118,17 +122,7 @@ function NewItemForm({ warehouses, onCreate, isSubmitting }) {
           </label>
         </div>
 
-        <div className="form-row">
-          <label>
-            Image URL (optional)
-            <input
-              name="imageUrl"
-              value={form.imageUrl}
-              onChange={handleChange}
-              placeholder="https://example.com/image.png"
-            />
-          </label>
-        </div>
+        {/* Image URL is hidden for now */}
 
         <div className="form-row">
           <label>

@@ -1,4 +1,5 @@
 /* Layout */
+
 body {
   margin: 0;
   font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
@@ -32,6 +33,27 @@ body {
   flex-direction: column;
   gap: 1.5rem;
 }
+
+
+.top-nav {
+  display: flex;
+  justify-content: center;
+  gap: 1.5rem;
+  margin-bottom: 0.75rem;
+  font-size: 0.85rem;
+}
+
+.top-nav a {
+  text-decoration: none;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+}
+
+.top-nav a:hover {
+  color: var(--accent-strong);
+}
+
 
 /* Cards */
 .card {
