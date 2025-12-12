@@ -1,11 +1,11 @@
 package com.godsvessel.inventory_warehouse.model;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import jakarta.persistence.*;
+import java.util.List;
 
 @Entity
+@JsonIgnoreProperties("items")
 public class Warehouse {
 
     @Id
@@ -16,41 +16,21 @@ public class Warehouse {
     private String location;
     private int maxCapacity;
 
-    public Warehouse() {
-        // required by JPA
-    }
+    @OneToMany(mappedBy = "warehouse")
+    private List<Item> items;
 
-    public Warehouse(String name, String location, int maxCapacity) {
-        this.name = name;
-        this.location = location;
-        this.maxCapacity = maxCapacity;
-    }
+    public Long getId() { return id; }
+    public void setId(Long id) { this.id = id; }
 
-    public Long getId() {
-        return id;
-    }
-    public void setId(Long id) {
-        this.id = id;
-    }
+    public String getName() { return name; }
+    public void setName(String name) { this.name = name; }
 
-    public String getName() {
-        return name;
-    }
-    public void setName(String name) {
-        this.name = name;
-    }
+    public String getLocation() { return location; }
+    public void setLocation(String location) { this.location = location; }
 
-    public String getLocation() {
-        return location;
-    }
-    public void setLocation(String location) {
-        this.location = location;
-    }
+    public int getMaxCapacity() { return maxCapacity; }
+    public void setMaxCapacity(int maxCapacity) { this.maxCapacity = maxCapacity; }
 
-    public int getMaxCapacity() {
-        return maxCapacity;
-    }
-    public void setMaxCapacity(int maxCapacity) {
-        this.maxCapacity = maxCapacity;
-    }
+    public List<Item> getItems() { return items; }
+    public void setItems(List<Item> items) { this.items = items; }
 }

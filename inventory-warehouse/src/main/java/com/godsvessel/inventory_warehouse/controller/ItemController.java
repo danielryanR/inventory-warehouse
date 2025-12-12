@@ -1,19 +1,10 @@
-//inventory_warehouse/controller/ItemController.java
 package com.godsvessel.inventory_warehouse.controller;
 
 import com.godsvessel.inventory_warehouse.model.Item;
 import com.godsvessel.inventory_warehouse.service.ItemService;
-
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 
@@ -40,25 +31,48 @@ public class ItemController {
 
     @PostMapping
     public Item create(@RequestBody Item item) {
-        return service.save(item);
-    }
-
-    @DeleteMapping("/{id}")
-    public void delete(@PathVariable Long id) {
-        service.delete(id);
+        try {
+            return service.save(item);
+        } catch (IllegalArgumentException ex) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, ex.getMessage(), ex);
+        } catch (IllegalStateException ex) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, ex.getMessage(), ex);
+        }
     }
 
     @PutMapping("/{id}")
     public Item update(@PathVariable Long id, @RequestBody Item item) {
-        item.setId(id);
+        try {
+            item.setId(id);
             return service.save(item);
+        } catch (IllegalArgumentException ex) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, ex.getMessage(), ex);
+        } catch (IllegalStateException ex) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, ex.getMessage(), ex);
+        }
+    }
+
+    @DeleteMapping("/{id}")
+    public void delete(@PathVariable Long id) {
+        try {
+            service.delete(id);
+        } catch (IllegalArgumentException ex) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, ex.getMessage(), ex);
+        }
     }
 
     @PostMapping("/{id}/transfer")
     public Item transfer(
-        @PathVariable Long id,
-        @RequestParam Long targetWarehouseId,
-        @RequestParam int quantity) {
+            @PathVariable Long id,
+            @RequestParam Long targetWarehouseId,
+            @RequestParam int quantity
+    ) {
+        try {
             return service.transfer(id, targetWarehouseId, quantity);
+        } catch (IllegalArgumentException ex) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, ex.getMessage(), ex);
+        } catch (IllegalStateException ex) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, ex.getMessage(), ex);
+        }
     }
 }

@@ -1,12 +1,13 @@
-// src/App.jsx  ---Top-level React app---
+// src/App.jsx
 import React, { useEffect, useState } from "react";
 import LayoutHeader from "./components/LayoutHeader.jsx";
 import WarehouseSummary from "./components/WarehouseSummary.jsx";
 import ItemList from "./components/ItemList.jsx";
 import NewItemForm from "./components/NewItemForm.jsx";
 
+const API = "http://localhost:8080";
+
 function App() {
-  // ---- STATE: warehouses, items, edit state, filters, admin mode ---
   const [warehouses, setWarehouses] = useState([]);
   const [items, setItems] = useState([]);
 
@@ -16,51 +17,56 @@ function App() {
     name: "",
     sku: "",
     size: "",
-    quantity: "",
+    quantity: 0,
     warehouseId: "",
   });
 
   const [selectedWarehouseId, setSelectedWarehouseId] = useState("all");
   const [isAdmin, setIsAdmin] = useState(false);
 
-  // state for the transfer modal
   const [transferItem, setTransferItem] = useState(null);
   const [transferForm, setTransferForm] = useState({
     warehouseId: "",
     quantity: 1,
   });
 
-  // ----- EFFECT: initial load of warehouses + items ---
   useEffect(() => {
     loadData();
   }, []);
 
-  // ---- API: load all warehouses and items from backend ----
-  async function loadData() {
+  async function readError(res) {
+    // Try to extract useful backend info (text or JSON)
+    const text = await res.text();
+    if (!text) return `Request failed (${res.status})`;
+
     try {
-      const [whRes, itemRes] = await Promise.all([
-        fetch("http://localhost:8080/api/warehouses"),
-        fetch("http://localhost:8080/api/items"),
-      ]);
-
-      if (!whRes.ok || !itemRes.ok) {
-        throw new Error("Failed to load data");
-      }
-
-      const [whData, itemData] = await Promise.all([
-        whRes.json(),
-        itemRes.json(),
-      ]);
-
-      setWarehouses(whData);
-      setItems(itemData);
-    } catch (err) {
-      console.error("Error: Failed to load items", err);
-      alert("Could not load data, check backend.");
+      const json = JSON.parse(text);
+      // Spring Boot error format: { status, error, message, path, ... }
+      return json.message || json.error || text;
+    } catch {
+      return text; // plain string error
     }
   }
 
-  // ----- SIMPLE ADMIN "LOGIN" TO GATE DANGEROUS ACTIONS -----
+  async function loadData() {
+    try {
+      const [whRes, itemRes] = await Promise.all([
+        fetch(`${API}/api/warehouses`),
+        fetch(`${API}/api/items`),
+      ]);
+
+      if (!whRes.ok) throw new Error(await readError(whRes));
+      if (!itemRes.ok) throw new Error(await readError(itemRes));
+
+      const [whData, itemData] = await Promise.all([whRes.json(), itemRes.json()]);
+      setWarehouses(Array.isArray(whData) ? whData : []);
+      setItems(Array.isArray(itemData) ? itemData : []);
+    } catch (err) {
+      console.error("Load error:", err);
+      alert(err.message || "Could not load data (check backend).");
+    }
+  }
+
   function handleAdminLogin() {
     const pwd = window.prompt("Enter admin password");
     if (pwd === "admin123") {
@@ -71,40 +77,46 @@ function App() {
     }
   }
 
-  // ---- CREATE: add a new item to a specific warehouse -----
   async function handleCreateItem(newItem) {
     try {
+      const wid = Number(newItem.warehouseId);
+      const qty = Number(newItem.quantity);
+
+      if (!Number.isFinite(wid) || wid <= 0) {
+        alert("Select a warehouse.");
+        return;
+      }
+      if (!Number.isFinite(qty) || qty < 0) {
+        alert("Quantity must be 0 or more.");
+        return;
+      }
+
       const payload = {
         name: newItem.name,
         sku: newItem.sku,
-        description: newItem.description,
+        description: newItem.description || "",
         size: newItem.size,
-        quantity: Number(newItem.quantity),
+        quantity: qty,
         imageUrl: newItem.imageUrl || null,
-        warehouse: {
-          id: Number(newItem.warehouseId),
-        },
+        warehouse: { id: wid },
       };
 
-      const response = await fetch("http://localhost:8080/api/items", {
+      const res = await fetch(`${API}/api/items`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
       });
 
-      if (!response.ok) {
-        throw new Error("Failed to create item");
-      }
+      if (!res.ok) throw new Error(await readError(res));
 
-      const created = await response.json();
+      const created = await res.json();
       setItems((prev) => [...prev, created]);
     } catch (err) {
-      console.error("Error creating item", err);
-      alert("Could not create item – check backend logs.");
+      console.error("Create error:", err);
+      alert(err.message || "Could not create item.");
     }
   }
 
-  // ---- DELETE: remove an item (admin only, with confirm) ----
   async function handleDeleteItem(id, name) {
     if (!isAdmin) {
       alert("Admin login required to delete items.");
@@ -115,22 +127,15 @@ function App() {
     if (!ok) return;
 
     try {
-      const response = await fetch(`http://localhost:8080/api/items/${id}`, {
-        method: "DELETE",
-      });
-
-      if (!response.ok) {
-        throw new Error("Failed to delete item");
-      }
-
+      const res = await fetch(`${API}/api/items/${id}`, { method: "DELETE" });
+      if (!res.ok) throw new Error(await readError(res));
       setItems((prev) => prev.filter((i) => i.id !== id));
     } catch (err) {
-      console.error(err);
-      alert("Could not delete item – check backend logs.");
+      console.error("Delete error:", err);
+      alert(err.message || "Could not delete item.");
     }
   }
 
-  // ---- EDIT: start editing an item  ----
   function handleStartEdit(item) {
     if (!isAdmin) {
       alert("Admin login required to edit items.");
@@ -140,15 +145,14 @@ function App() {
     setEditingItem(item);
     setEditForm({
       id: item.id,
-      name: item.name,
-      sku: item.sku,
-      size: item.size,
-      quantity: item.quantity,
+      name: item.name || "",
+      sku: item.sku || "",
+      size: item.size || "",
+      quantity: Number(item.quantity || 0),
       warehouseId: item.warehouse?.id || "",
     });
   }
 
-  // ---- EDIT: change 'edit form' fields ---
   function handleEditChange(e) {
     const { name, value } = e.target;
     setEditForm((prev) => ({
@@ -157,77 +161,6 @@ function App() {
     }));
   }
 
-  // ---- TRANSFER: call backend to move quantity between warehouses ----
-  async function handleTransfer(itemId, targetWarehouseId, qty) {
-    try {
-      const response = await fetch(
-        `http://localhost:8080/api/items/${itemId}/transfer?targetWarehouseId=${targetWarehouseId}&quantity=${qty}`,
-        { method: "POST" }
-      );
-
-      if (!response.ok) {
-        throw new Error("Failed to transfer item");
-      }
-
-      await response.json();
-      await loadData(); // refresh both source and target quantities
-    } catch (err) {
-      console.error("Error transferring item", err);
-      alert("Could not transfer item – check backend logs.");
-    }
-  }
-
-  // ---- TRANSFER MODAL: open with selected item ----
-  function openTransferModal(item) {
-    if (!isAdmin) {
-      alert("Admin login required to transfer items.");
-      return;
-    }
-
-    setTransferItem(item);
-    setTransferForm({
-      warehouseId: "",
-      quantity: 1,
-    });
-  }
-
-  // ---------- TRANSFER MODAL: close ----
-  function closeTransferModal() {
-    setTransferItem(null);
-  }
-
-  // ---- TRANSFER MODAL: handle input change (warehouse / quantity) ----
-  function handleTransferFormChange(e) {
-    const { name, value } = e.target;
-    setTransferForm((prev) => ({
-      ...prev,
-      [name]: name === "quantity" ? Number(value) : value,
-    }));
-  }
-
-  // ---- TRANSFER MODAL: submit transfer request ----
-  async function handleTransferSubmit(e) {
-    e.preventDefault();
-    if (!transferItem) return;
-
-    if (!transferForm.warehouseId) {
-      alert("Select a target warehouse.");
-      return;
-    }
-    if (transferForm.quantity <= 0) {
-      alert("Quantity must be at least 1.");
-      return;
-    }
-
-    await handleTransfer(
-      transferItem.id,
-      Number(transferForm.warehouseId),
-      transferForm.quantity
-    );
-    closeTransferModal();
-  }
-
-  // ---- UPDATE: save changes from the edit form to backend ----
   async function handleUpdateItem(e) {
     e.preventDefault();
 
@@ -236,77 +169,143 @@ function App() {
       return;
     }
 
+    const wid = Number(editForm.warehouseId);
+    const qty = Number(editForm.quantity);
+
+    if (!Number.isFinite(wid) || wid <= 0) {
+      alert("Select a warehouse.");
+      return;
+    }
+    if (!Number.isFinite(qty) || qty < 0) {
+      alert("Quantity must be 0 or more.");
+      return;
+    }
+
+    const original = items.find((i) => i.id === editForm.id);
+
     const payload = {
       id: editForm.id,
       name: editForm.name,
       sku: editForm.sku,
+      description: original?.description || "",
       size: editForm.size,
-      quantity: editForm.quantity,
-      warehouse: {
-        id: Number(editForm.warehouseId),
-      },
+      quantity: qty,
+      imageUrl: original?.imageUrl || null,
+      warehouse: { id: wid },
     };
 
     try {
-      const response = await fetch(
-        `http://localhost:8080/api/items/${editForm.id}`,
-        {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(payload),
-        }
-      );
+      const res = await fetch(`${API}/api/items/${editForm.id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
 
-      if (!response.ok) {
-        throw new Error("Failed to update item");
-      }
+      if (!res.ok) throw new Error(await readError(res));
 
-      const updated = await response.json();
-
-      setItems((prev) =>
-        prev.map((item) => (item.id === updated.id ? updated : item))
-      );
+      const updated = await res.json();
+      setItems((prev) => prev.map((i) => (i.id === updated.id ? updated : i)));
       setEditingItem(null);
     } catch (err) {
-      console.error("Error updating item", err);
-      alert("Could not update item – check backend logs.");
+      console.error("Update error:", err);
+      alert(err.message || "Could not update item.");
     }
   }
 
-  // ---- EDIT: cancel edit mode ----
   function handleCancelEdit() {
     setEditingItem(null);
   }
 
-  // ---- DERIVED DATA: filter items by selected warehouse ----
+  function openTransferModal(item) {
+    if (!isAdmin) {
+      alert("Admin login required to transfer items.");
+      return;
+    }
+    setTransferItem(item);
+    setTransferForm({ warehouseId: "", quantity: 1 });
+  }
+
+  function closeTransferModal() {
+    setTransferItem(null);
+  }
+
+  function handleTransferFormChange(e) {
+    const { name, value } = e.target;
+    setTransferForm((prev) => ({
+      ...prev,
+      [name]: name === "quantity" ? Number(value) : value,
+    }));
+  }
+
+  // ✅ Transfer: DON'T try res.json() (transfer might return Item but we don't need it)
+  // ✅ Also show backend error body so we stop guessing
+  async function handleTransfer(itemId, targetWarehouseId, qty) {
+    const url = `${API}/api/items/${itemId}/transfer?targetWarehouseId=${encodeURIComponent(
+      targetWarehouseId
+    )}&quantity=${encodeURIComponent(qty)}`;
+
+    try {
+      const res = await fetch(url, { method: "POST" });
+      if (!res.ok) throw new Error(await readError(res));
+
+      await loadData();
+    } catch (err) {
+      console.error("Transfer error:", err);
+      alert(err.message || "Transfer failed.");
+      throw err; // so submit handler can choose whether to close modal
+    }
+  }
+
+  async function handleTransferSubmit(e) {
+    e.preventDefault();
+    if (!transferItem) return;
+
+    const targetId = Number(transferForm.warehouseId);
+    const qty = Number(transferForm.quantity);
+
+    if (!Number.isFinite(targetId) || targetId <= 0) {
+      alert("Select a target warehouse.");
+      return;
+    }
+    if (!Number.isFinite(qty) || qty <= 0) {
+      alert("Quantity must be at least 1.");
+      return;
+    }
+    if (qty > Number(transferItem.quantity || 0)) {
+      alert("Cannot transfer more than available quantity.");
+      return;
+    }
+
+    try {
+      await handleTransfer(transferItem.id, targetId, qty);
+      closeTransferModal(); // ✅ only close on success
+    } catch {
+      // keep modal open so user can adjust
+    }
+  }
+
   const visibleItems =
     selectedWarehouseId === "all"
       ? items
-      : items.filter(
-          (i) => i.warehouse && i.warehouse.id === Number(selectedWarehouseId)
-        );
+      : items.filter((i) => i.warehouse && i.warehouse.id === Number(selectedWarehouseId));
 
-  // ---- RENDER: layout, dashboard, lists, forms, and modals ----
   return (
     <div className="page">
       <LayoutHeader isAdmin={isAdmin} onAdminLogin={handleAdminLogin} />
-      <main id="dashboard" className="layout">
-        {/* Warehouses section */}
-        <WarehouseSummary
-  warehouses={warehouses}
-  selectedWarehouseId={selectedWarehouseId}
-  onChangeWarehouse={setSelectedWarehouseId}
-/>
 
-        {/* Items section */}
+      <main id="dashboard" className="layout">
+        <WarehouseSummary
+          warehouses={warehouses}
+          selectedWarehouseId={selectedWarehouseId}
+          onChangeWarehouse={setSelectedWarehouseId}
+        />
+
         <section id="items" className="card card-wide">
           <h2 className="section-title">Items</h2>
 
           <p className="section-subtitle">
             {visibleItems.length} items shown, total units{" "}
-            {visibleItems.reduce((sum, i) => sum + i.quantity, 0)}
+            {visibleItems.reduce((sum, i) => sum + Number(i.quantity || 0), 0)}
           </p>
 
           <ItemList
@@ -318,38 +317,23 @@ function App() {
           />
         </section>
 
-        {/* Edit item panel */}
         {editingItem && (
           <section className="card card-wide edit-panel">
             <h2 className="section-title">Edit Item</h2>
             <form className="form-grid" onSubmit={handleUpdateItem}>
               <label>
                 Name
-                <input
-                  name="name"
-                  value={editForm.name}
-                  onChange={handleEditChange}
-                  required
-                />
+                <input name="name" value={editForm.name} onChange={handleEditChange} required />
               </label>
 
               <label>
                 SKU
-                <input
-                  name="sku"
-                  value={editForm.sku}
-                  onChange={handleEditChange}
-                  required
-                />
+                <input name="sku" value={editForm.sku} onChange={handleEditChange} required />
               </label>
 
               <label>
                 Size
-                <input
-                  name="size"
-                  value={editForm.size}
-                  onChange={handleEditChange}
-                />
+                <input name="size" value={editForm.size} onChange={handleEditChange} />
               </label>
 
               <label>
@@ -385,11 +369,7 @@ function App() {
                 <button className="btn btn-primary" type="submit">
                   Save Changes
                 </button>
-                <button
-                  className="btn btn-secondary"
-                  type="button"
-                  onClick={handleCancelEdit}
-                >
+                <button className="btn btn-secondary" type="button" onClick={handleCancelEdit}>
                   Cancel
                 </button>
               </div>
@@ -397,11 +377,11 @@ function App() {
           </section>
         )}
 
-        {/* Transfer modal */}
         {transferItem && (
           <div className="modal-backdrop">
             <div className="modal">
               <h3>Transfer {transferItem.name}</h3>
+
               <form onSubmit={handleTransferSubmit} className="form-grid">
                 <label>
                   Target warehouse
@@ -439,11 +419,7 @@ function App() {
                   <button className="btn btn-primary" type="submit">
                     Transfer
                   </button>
-                  <button
-                    className="btn btn-secondary"
-                    type="button"
-                    onClick={closeTransferModal}
-                  >
+                  <button className="btn btn-secondary" type="button" onClick={closeTransferModal}>
                     Cancel
                   </button>
                 </div>
@@ -452,18 +428,10 @@ function App() {
           </div>
         )}
 
-        {/* New item form */}
         <section className="card card-wide">
-          <NewItemForm
-            warehouses={warehouses}
-            onCreate={handleCreateItem}
-            isSubmitting={false}
-          />
+          <NewItemForm warehouses={warehouses} onCreate={handleCreateItem} isSubmitting={false} />
         </section>
       </main>
-      <footer className="app-footer">
-        <p>Full stack flow: React → Spring Boot → PostgreSQL</p>
-      </footer>
     </div>
   );
 }

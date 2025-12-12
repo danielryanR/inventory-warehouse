@@ -10,10 +10,12 @@ import java.util.Optional;
 
 public interface ItemRepository extends JpaRepository<Item, Long> {
 
-    List<Item> findByWarehouseId(Long warehouseId);
+    // For ManyToOne: Item.warehouse.id
+    List<Item> findByWarehouse_Id(Long warehouseId);
 
-        @Query("select coalesce(sum(i.quantity),0) from Item i where i.warehouse.id = :warehouseId")
-            int getTotalQuantityForWarehouse(@Param("warehouseId") Long warehouseId);
+    Optional<Item> findBySkuAndWarehouse_Id(String sku, Long warehouseId);
 
-    Optional<Item> findBySkuAndWarehouseId(String sku, Long warehouseId);
+    // SUM returns Long in JPQL
+    @Query("select coalesce(sum(i.quantity), 0) from Item i where i.warehouse.id = :warehouseId")
+    Long getTotalQuantityForWarehouse(@Param("warehouseId") Long warehouseId);
 }

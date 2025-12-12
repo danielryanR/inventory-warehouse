@@ -1,9 +1,8 @@
-// src/components/NewItemForm.jsx 
-// --Use form to create/add new items---
+// src/components/NewItemForm.jsx
+// -- Use form to create/add new items ---
 import { useState } from "react";
 
-// the form local state
-function NewItemForm({ warehouses, onCreate, isSubmitting }) {
+function NewItemForm({ warehouses = [], onCreate, isSubmitting = false }) {
   const [form, setForm] = useState({
     name: "",
     sku: "",
@@ -11,28 +10,26 @@ function NewItemForm({ warehouses, onCreate, isSubmitting }) {
     size: "",
     quantity: "",
     warehouseId: "",
-    imageUrl: "", // still here just hidden 
+    imageUrl: "", // still here just hidden
   });
 
-  // Update fields on the form
   function handleChange(e) {
     const { name, value } = e.target;
     setForm((prev) => ({ ...prev, [name]: value }));
   }
 
-
-  // Submit form to parents - App.jsx
   async function handleSubmit(e) {
     e.preventDefault();
 
-    if (
-      !form.name ||
-      !form.sku ||
-      !form.size ||
-      !form.quantity ||
-      !form.warehouseId
-    ) {
-      alert("Please fill out name, SKU, size, quantity, and warehouse.");
+    // basic front-end validation
+    if (!form.name || !form.sku || !form.size || !form.warehouseId) {
+      alert("Please fill out name, SKU, size, and warehouse.");
+      return;
+    }
+
+    const qty = Number(form.quantity);
+    if (!Number.isFinite(qty) || qty < 0) {
+      alert("Quantity must be 0 or more.");
       return;
     }
 
@@ -41,13 +38,21 @@ function NewItemForm({ warehouses, onCreate, isSubmitting }) {
       sku: form.sku,
       description: form.description,
       size: form.size,
-      quantity: Number(form.quantity),
+      quantity: qty,
       warehouseId: Number(form.warehouseId),
       imageUrl: form.imageUrl || null,
     };
 
     try {
-      await onCreate(payload); // Will make sure that App.jsx will POST to backend
+      if (typeof onCreate !== "function") {
+        throw new Error(
+          "NewItemForm: onCreate prop is missing or not a function"
+        );
+      }
+
+      await onCreate(payload);
+
+      // reset form after success
       setForm({
         name: "",
         sku: "",
@@ -59,12 +64,14 @@ function NewItemForm({ warehouses, onCreate, isSubmitting }) {
       });
     } catch (err) {
       console.error("Error in NewItemForm onCreate", err);
+      alert(err.message || "Create failed (check console).");
     }
   }
 
   return (
     <section className="panel">
       <h2>Add New Item</h2>
+
       <form className="item-form" onSubmit={handleSubmit}>
         <div className="form-row">
           <label>
@@ -88,6 +95,7 @@ function NewItemForm({ warehouses, onCreate, isSubmitting }) {
               placeholder="GV-JJ-BLK-M"
             />
           </label>
+
           <label>
             Size
             <input
@@ -97,6 +105,7 @@ function NewItemForm({ warehouses, onCreate, isSubmitting }) {
               placeholder="S / M / L / XL"
             />
           </label>
+
           <label>
             Quantity
             <input

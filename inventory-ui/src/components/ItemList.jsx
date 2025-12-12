@@ -1,8 +1,14 @@
-// src/components/ItemList.jsx 
-// ---list of items w/admin actions (edit/delete/transfer).---
+// src/components/ItemList.jsx
+// --- list of items w/admin actions (edit/delete/transfer). ---
 import React from "react";
 
-function ItemList({ items, onDelete, onEdit, isAdmin, onTransfer }) {
+function ItemList({
+  items = [],
+  onDelete = () => {},
+  onEdit = () => {},
+  isAdmin = false,
+  onTransfer = () => {},
+}) {
   return (
     <div className="card">
       <p className="section-subtitle">Showing all items</p>
@@ -18,6 +24,7 @@ function ItemList({ items, onDelete, onEdit, isAdmin, onTransfer }) {
             <th className="actions-col">Actions</th>
           </tr>
         </thead>
+
         <tbody>
           {items.map((item) => (
             <tr key={item.id}>
@@ -26,6 +33,7 @@ function ItemList({ items, onDelete, onEdit, isAdmin, onTransfer }) {
               <td>{item.size}</td>
               <td>{item.quantity}</td>
               <td>{item.warehouse?.name}</td>
+
               <td className="actions-col">
                 {isAdmin ? (
                   <>
@@ -36,6 +44,7 @@ function ItemList({ items, onDelete, onEdit, isAdmin, onTransfer }) {
                     >
                       Edit
                     </button>
+
                     <button
                       className="btn btn-danger"
                       type="button"
@@ -43,11 +52,13 @@ function ItemList({ items, onDelete, onEdit, isAdmin, onTransfer }) {
                     >
                       Delete
                     </button>
+
                     <button
+                      className="btn btn-secondary"
                       type="button"
-                      onClick={() => onTransfer(item.id, 1, 5)} // ex: move 5 units to warehouse id 1
-                      >
-                        Shipment Transfer 
+                      onClick={() => onTransfer(item)}
+                    >
+                      Shipment Transfer
                     </button>
                   </>
                 ) : (
