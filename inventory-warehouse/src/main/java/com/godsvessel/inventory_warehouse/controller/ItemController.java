@@ -1,4 +1,4 @@
-// src/main/java/com/godsvessel/inventory_warehouse/controller/ItemController.java
+//inventory_warehouse/controller/ItemController.java
 package com.godsvessel.inventory_warehouse.controller;
 
 import com.godsvessel.inventory_warehouse.model.Item;

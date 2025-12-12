@@ -461,6 +461,9 @@ function App() {
           />
         </section>
       </main>
+      <footer className="app-footer">
+        <p>Full stack flow: React → Spring Boot → PostgreSQL</p>
+      </footer>
     </div>
   );
 }

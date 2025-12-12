@@ -1,9 +1,9 @@
-/* Layout */
+/* ---- Layout & Page Shell ----- */
 
 body {
   margin: 0;
   font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-  background: radial-gradient(circle at top, #2b2b3f, #111);
+  background: radial-gradient(circle at top, #3a3a50, #0d0d15); /* newer background */
   color: #f5f5f5;
 }
 
@@ -23,10 +23,7 @@ body {
   margin-bottom: 0.3rem;
 }
 
-.tagline {
-  color: #b3b3d1;
-  font-size: 0.95rem;
-}
+
 
 .layout {
   display: flex;
@@ -34,6 +31,7 @@ body {
   gap: 1.5rem;
 }
 
+/* ---- Top Navigation ---- */
 
 .top-nav {
   display: flex;
@@ -45,17 +43,17 @@ body {
 
 .top-nav a {
   text-decoration: none;
-  color: var(--muted);
+  color: #b3b3d1;
   text-transform: uppercase;
   letter-spacing: 0.12em;
 }
 
 .top-nav a:hover {
-  color: var(--accent-strong);
+  color: #ffffff;
 }
 
+/* ---- Cards ---- */
 
-/* Cards */
 .card {
   background: rgba(20, 20, 30, 0.9);
   border-radius: 14px;
@@ -79,7 +77,8 @@ body {
   font-size: 0.9rem;
 }
 
-/* Warehouse list */
+/* ---- Warehouse List ---- */
+
 .warehouse-list {
   list-style: none;
   padding: 0;
@@ -103,7 +102,8 @@ body {
   background: rgba(110, 178, 255, 0.16);
 }
 
-/* Table */
+/* ---- Table ---- */
+
 .table {
   width: 100%;
   border-collapse: collapse;
@@ -129,7 +129,8 @@ body {
   white-space: nowrap;
 }
 
-/* Buttons */
+/* ---- Buttons ---- */
+
 .btn {
   border: none;
   border-radius: 999px;
@@ -161,15 +162,16 @@ body {
 }
 
 .btn-danger {
-  background: #d64545;
+  background: #dd2121;
   color: #fff;
 }
 
 .btn-danger:hover {
-  background: #f25555;
+  background: #e93737;
 }
 
-/* Edit panel form */
+/* ---- Edit Panel & Forms ---- */
+
 .edit-panel {
   border-left: 3px solid #6d5dfc;
 }
@@ -202,4 +204,86 @@ body {
   align-items: center;
   gap: 0.5rem;
   margin-top: 0.4rem;
+}
+
+/* ---- Typography Pop ---- */
+
+h1,
+h2,
+h3,
+.section-title {
+  color: #ffffff;
+  text-shadow: 0 0 6px rgba(140, 140, 255, 0.35);
+  letter-spacing: 0.5px;
+}
+
+p,
+label,
+span {
+  color: #e2e2ff;
+}
+
+/* ---- Misc / Legacy ---- */
+
+@media (prefers-reduced-motion: no-preference) {
+  a:nth-of-type(2) .logo {
+    animation: logo-spin infinite 20s linear;
+  }
+}
+
+.read-the-docs {
+  color: #888;
+}
+
+/* ---- Footer --- */
+
+.app-footer {
+  margin-top: 2.5rem;
+  padding: 1.2rem 0;
+  text-align: center;
+  font-size: 0.9rem;
+  color: #bdbdfd;
+  opacity: 0.85;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.app-footer p {
+  margin: 0;
+  letter-spacing: 0.06em;
+  text-shadow: 0 0 4px rgba(180, 180, 255, 0.2);
+}
+
+/* --- Top Row (title + admin login) --- */
+.header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.8rem;
+}
+
+/* --- Middle Nav Row --- */
+.middle-nav {
+  display: flex;
+  justify-content: center;
+  gap: 3.5rem;       /* spacing between Dashboard / Warehouses / Items */
+  margin-bottom: 0.8rem;
+}
+
+.middle-nav a {
+  font-size: 1.05rem;
+  text-transform: uppercase;
+  color: #d7d7ff;
+  letter-spacing: 0.1em;
+}
+
+.middle-nav a:hover {
+  color: #ffffff;
+}
+
+
+.tagline {
+  margin-top: 0.4rem;
+  align-items: center;
+  font-size: 0.9rem;
+  opacity: 0.85;
 }
