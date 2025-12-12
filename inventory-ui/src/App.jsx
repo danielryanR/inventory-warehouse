@@ -1,5 +1,7 @@
-// src/App.jsx
+// src/App.jsx  ---Top-level React app---
 import React, { useEffect, useState } from "react";
+import LayoutHeader from "./components/LayoutHeader.jsx";
+import WarehouseSummary from "./components/WarehouseSummary.jsx";
 import ItemList from "./components/ItemList.jsx";
 import NewItemForm from "./components/NewItemForm.jsx";
 
@@ -289,59 +291,14 @@ function App() {
   // ---------- RENDER: layout, dashboard, lists, forms, and modals ----------
   return (
     <div className="page">
-      <header className="page-header">
-        <div className="top-nav">
-          <span className="nav-title">Inventory Admin Dashboard</span>
-          <nav>
-            <a href="#dashboard">Dashboard</a>
-            <a href="#warehouses">Warehouses</a>
-            <a href="#items">Items</a>
-          </nav>
-          <button className="btn btn-admin" type="button" onClick={handleAdminLogin}>
-            {isAdmin ? "Admin: ON" : "Admin Login"}
-          </button>
-        </div>
-        <p className="tagline">
-          Full stack flow: React → Spring Boot → PostgreSQL
-        </p>
-      </header>
-
+      <LayoutHeader isAdmin={isAdmin} onAdminLogin={handleAdminLogin} />
       <main id="dashboard" className="layout">
         {/* Warehouses section */}
-        <section id="warehouses" className="card card-wide">
-          <h2 className="section-title">Warehouses</h2>
-
-          <div className="warehouse-toolbar">
-            <label>
-              Filter items by warehouse:
-              <select
-                value={selectedWarehouseId}
-                onChange={(e) => setSelectedWarehouseId(e.target.value)}
-              >
-                <option value="all">All Warehouses</option>
-                {warehouses.map((wh) => (
-                  <option key={wh.id} value={wh.id}>
-                    {wh.name}
-                  </option>
-                ))}
-              </select>
-            </label>
-          </div>
-
-          <ul className="warehouse-list">
-            {warehouses.map((wh) => (
-              <li key={wh.id}>
-                <strong>{wh.name}</strong>
-                <div>
-                  {wh.location}, NC{" "}
-                  <span className="capacity-badge">
-                    Max Capacity: {wh.maxCapacity}
-                  </span>
-                </div>
-              </li>
-            ))}
-          </ul>
-        </section>
+        <WarehouseSummary
+  warehouses={warehouses}
+  selectedWarehouseId={selectedWarehouseId}
+  onChangeWarehouse={setSelectedWarehouseId}
+/>
 
         {/* Items section */}
         <section id="items" className="card card-wide">

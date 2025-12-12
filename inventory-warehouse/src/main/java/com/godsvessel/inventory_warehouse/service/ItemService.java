@@ -1,4 +1,3 @@
-// ItemService
 package com.godsvessel.inventory_warehouse.service;
 
 import com.godsvessel.inventory_warehouse.model.Item;
@@ -20,28 +19,69 @@ public class ItemService {
         this.warehouseRepo = warehouseRepo;
     }
 
+    // return all items
     public List<Item> getAll() {
         return repo.findAll();
     }
 
+    // return items by warehouse
     public List<Item> getByWarehouse(Long warehouseId) {
         return repo.findByWarehouseId(warehouseId);
     }
 
+    // get a single item
     public Item getById(Long id) {
         return repo.findById(id)
                 .orElseThrow(() -> new RuntimeException("Item not found with id " + id));
     }
 
+    // save item with basic validation
     public Item save(Item item) {
+
+        // must have at least one warehouse
+        if (warehouseRepo.count() == 0) {
+            throw new IllegalStateException("Cannot create items until at least one warehouse exists.");
+        }
+
+        // warehouse must be set
+        Long warehouseId = item.getWarehouse() != null ? item.getWarehouse().getId() : null;
+        if (warehouseId == null) {
+            throw new IllegalArgumentException("Warehouse is required.");
+        }
+
+        // required fields
+        if (isBlank(item.getName()) || isBlank(item.getSku()) || isBlank(item.getSize())) {
+            throw new IllegalArgumentException("Name, SKU, and size are required.");
+        }
+
+        // quantity must be valid
+        if (item.getQuantity() < 0) {
+            throw new IllegalArgumentException("Quantity cannot be negative.");
+        }
+
+        // load managed warehouse entity
+        Warehouse wh = warehouseRepo.findById(warehouseId)
+                .orElseThrow(() -> new IllegalArgumentException("Warehouse not found: " + warehouseId));
+
+        item.setWarehouse(wh);
+
+        // save item
         return repo.save(item);
     }
 
+    // delete item
     public void delete(Long id) {
         repo.deleteById(id);
     }
 
+    // helper for blank string check
+    private boolean isBlank(String s) {
+        return s == null || s.trim().isEmpty();
+    }
+
+    // transfer items
     public Item transfer(Long itemId, Long targetWarehouseId, int quantity) {
+        // your existing transfer logic
         Item sourceItem = getById(itemId);
 
         if (quantity <= 0 || quantity > sourceItem.getQuantity()) {
@@ -77,4 +117,5 @@ public class ItemService {
         repo.save(sourceItem);
         return repo.save(targetItem);
     }
+
 }

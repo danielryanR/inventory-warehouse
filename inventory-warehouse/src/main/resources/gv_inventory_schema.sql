@@ -56,10 +56,10 @@ CREATE TABLE IF NOT EXISTS product (
 -- =========================================================
 INSERT INTO warehouse (name, location, max_capacity)
 VALUES
-    ('Main Warehouse',          'Greensboro, NC', 500),
-    ('Overflow Warehouse',      'Charlotte, NC',  300),
-    ('Local Warehouse',         'Jamestown, NC',  400),
-    ('External Local Warehouse','HighPoint, NC',  200);
+    ('Main Warehouse',          'Greensboro,', 500),
+    ('Overflow Warehouse',      'Charlotte,',  300),
+    ('Local Warehouse',         'Jamestown,',  200),
+    ('External Local Warehouse','HighPoint,',  20);
 
 -- =========================================================
 -- Seed Data: Items (Shirts / Hoodies)
