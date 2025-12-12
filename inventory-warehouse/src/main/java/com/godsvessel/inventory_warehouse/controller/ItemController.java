@@ -62,17 +62,24 @@ public class ItemController {
     }
 
     @PostMapping("/{id}/transfer")
-    public Item transfer(
-            @PathVariable Long id,
-            @RequestParam Long targetWarehouseId,
-            @RequestParam int quantity
-    ) {
+    public Item transfer(@PathVariable Long id,
+                         @RequestParam Long targetWarehouseId,
+                         @RequestParam int quantity) {
         try {
             return service.transfer(id, targetWarehouseId, quantity);
         } catch (IllegalArgumentException ex) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, ex.getMessage(), ex);
         } catch (IllegalStateException ex) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, ex.getMessage(), ex);
+        }
+    }
+
+    @GetMapping("/{id}")
+    public Item getOne(@PathVariable Long id) {
+        try {
+            return service.getById(id);
+        } catch (IllegalArgumentException ex) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, ex.getMessage(), ex);
         }
     }
 }

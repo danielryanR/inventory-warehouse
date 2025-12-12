@@ -28,16 +28,17 @@ CREATE TABLE warehouse (
 CREATE TABLE item (
     id           BIGSERIAL PRIMARY KEY,
     name         VARCHAR(150) NOT NULL,
-    sku          VARCHAR(50)  NOT NULL UNIQUE,
+    sku          VARCHAR(50)  NOT NULL,
     description  TEXT,
     size         VARCHAR(10),
     quantity     INTEGER      NOT NULL DEFAULT 0 CHECK (quantity >= 0),
-    image_url     TEXT,
+    image_url    TEXT,
     warehouse_id BIGINT       NOT NULL,
     CONSTRAINT fk_item_warehouse
         FOREIGN KEY (warehouse_id)
         REFERENCES warehouse(id)
-        ON DELETE CASCADE
+        ON DELETE CASCADE,
+    CONSTRAINT uq_item_sku_warehouse UNIQUE (sku, warehouse_id)
 );
 
 -- =========================
@@ -59,7 +60,7 @@ VALUES
     ('Main Warehouse',          'Greensboro,', 500),
     ('Overflow Warehouse',      'Charlotte,',  300),
     ('Local Warehouse',         'Jamestown,',  200),
-    ('External Local Warehouse','HighPoint,',  20);
+    ('External Local Warehouse','HighPoint,',  200);
 
 -- =========================================================
 -- Seed Data: Items (Shirts / Hoodies)
@@ -134,4 +135,3 @@ INSERT INTO product (name, sku, description, image_url) VALUES
   ('Hosanna Hoodie', 'GV-HS-GRY-XL',
    'Hosanna hoodie', 'https://example.com/images/hosanna-grey-xl.png');
 
-   
