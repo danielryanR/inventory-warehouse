@@ -2,49 +2,40 @@ package com.godsvessel.inventory_warehouse.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpMethod;
-import org.springframework.security.config.Customizer;
-import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.core.userdetails.User;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.provisioning.InMemoryUserDetailsManager;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+
+import java.util.List;
 
 @Configuration
-@EnableWebSecurity
 public class SecurityConfig {
 
     @Bean
-public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-    http
-        .csrf(csrf -> csrf.disable()) // for API + React
-        .authorizeHttpRequests(auth -> auth
-            // 👇 Public: anyone can GET data
-            .requestMatchers(HttpMethod.GET, "/api/**").permitAll()
+    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+        http
+                .csrf(csrf -> csrf.disable())
+                .cors(cors -> {}) // enable CORS support
+                .authorizeHttpRequests(auth -> auth
+                        .requestMatchers("/api/**").permitAll()  // allow all CRUD on your APIs
+                        .anyRequest().permitAll()
+                );
 
-            // 👇 Protected: only authenticated users can modify data
-            .requestMatchers(HttpMethod.POST, "/api/**").authenticated()
-            .requestMatchers(HttpMethod.PUT, "/api/**").authenticated()
-            .requestMatchers(HttpMethod.DELETE, "/api/**").authenticated()
-
-            // 👇 Everything else (like "/", "/favicon.ico", etc.) is public
-            .anyRequest().permitAll()
-        )
-        // Simple HTTP Basic auth (for Postman / tools)
-        .httpBasic(Customizer.withDefaults());
-
-    return http.build();
-}
+        return http.build();
+    }
 
     @Bean
-    public UserDetailsService users() {
-        UserDetails admin = User.withUsername("admin")
-                .password("{noop}Admin123!")  // no hashing for demo purposes
-                .roles("ADMIN")
-                .build();
+    public CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration config = new CorsConfiguration();
+        config.setAllowedOrigins(List.of("http://localhost:5173"));
+        config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        config.setAllowedHeaders(List.of("*"));
+        config.setAllowCredentials(false);
 
-        return new InMemoryUserDetailsManager(admin);
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", config);
+        return source;
     }
 }
