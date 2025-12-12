@@ -1,77 +1,60 @@
-// src/components/ItemList.jsx
-function ItemList({ items, selectedWarehouseId, onDelete }) {
-  const visibleItems = selectedWarehouseId
-    ? items.filter((item) => {
-        const warehouseId =
-          item.warehouseId ?? item.warehouse?.id ?? item.warehouse_id;
-        return Number(warehouseId) === Number(selectedWarehouseId);
-      })
-    : items;
+// src/ItemList.jsx
+import React from "react";
 
+function ItemList({ items, onDelete, onEdit }) {
   return (
-    <section className="panel">
-      <div className="panel-header">
-        <h2>Items</h2>
-        {selectedWarehouseId ? (
-          <span className="muted">
-            Showing items in warehouse #{selectedWarehouseId}
-          </span>
-        ) : (
-          <span className="muted">Showing all items</span>
-        )}
-      </div>
+    <div className="card">
+      <h2 className="section-title">Items</h2>
+      <p className="section-subtitle">Showing all items</p>
 
-      {visibleItems.length === 0 ? (
-        <p className="muted">No items to display.</p>
-      ) : (
-        <table className="item-table">
-          <thead>
-            <tr>
-              <th>Name</th>
-              <th>SKU</th>
-              <th>Size</th>
-              <th>Quantity</th>
-              <th>Warehouse</th>
-              <th>Actions</th>
+      <table className="table">
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>SKU</th>
+            <th>Size</th>
+            <th>Quantity</th>
+            <th>Warehouse</th>
+            <th className="actions-col">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {items.map((item) => (
+            <tr key={item.id}>
+              <td>{item.name}</td>
+              <td>{item.sku}</td>
+              <td>{item.size}</td>
+              <td>{item.quantity}</td>
+              <td>{item.warehouse?.name}</td>
+              <td className="actions-col">
+                <button
+                  className="btn btn-secondary"
+                  type="button"
+                  onClick={() => onEdit(item)}
+                >
+                  Edit
+                </button>
+                <button
+                  className="btn btn-danger"
+                  type="button"
+                  onClick={() => onDelete(item.id)}
+                >
+                  Delete
+                </button>
+              </td>
             </tr>
-          </thead>
-          <tbody>
-            {visibleItems.map((item) => {
-              const warehouseName =
-                item.warehouse?.name ??
-                (item.warehouseId
-                  ? `Warehouse #${item.warehouseId}`
-                  : "N/A");
-              return (
-                <tr key={item.id}>
-                  <td>{item.name}</td>
-                  <td>{item.sku}</td>
-                  <td>{item.size}</td>
-                  <td
-                    className={
-                      item.quantity !== undefined && item.quantity <= 5
-                        ? "low-stock"
-                        : ""
-                    }
-                  >
-                    {item.quantity}
-                  </td>
-                  <td>{warehouseName}</td>
-                  <td>
-                    <button
-                      type="button"
-                      onClick={() => onDelete(item.id)}
-                    >
-                      Delete
-                    </button>
-                  </td>
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
-      )}
-    </section>
+          ))}
+
+          {items.length === 0 && (
+            <tr>
+              <td colSpan="6" style={{ textAlign: "center" }}>
+                No items found.
+              </td>
+            </tr>
+          )}
+        </tbody>
+      </table>
+    </div>
   );
 }
 
