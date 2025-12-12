@@ -1,6 +1,8 @@
-// src/components/NewItemForm.jsx
+// src/components/NewItemForm.jsx 
+// --Use form to create/add new items---
 import { useState } from "react";
 
+// the form local state
 function NewItemForm({ warehouses, onCreate, isSubmitting }) {
   const [form, setForm] = useState({
     name: "",
@@ -9,14 +11,17 @@ function NewItemForm({ warehouses, onCreate, isSubmitting }) {
     size: "",
     quantity: "",
     warehouseId: "",
-    imageUrl: "", // still here but hidden so I don't have to present / optional
+    imageUrl: "", // still here just hidden 
   });
 
+  // Update fields on the form
   function handleChange(e) {
     const { name, value } = e.target;
     setForm((prev) => ({ ...prev, [name]: value }));
   }
 
+
+  // Submit form to parents - App.jsx
   async function handleSubmit(e) {
     e.preventDefault();
 
@@ -42,7 +47,7 @@ function NewItemForm({ warehouses, onCreate, isSubmitting }) {
     };
 
     try {
-      await onCreate(payload); // App.jsx will POST to backend
+      await onCreate(payload); // Will make sure that App.jsx will POST to backend
       setForm({
         name: "",
         sku: "",

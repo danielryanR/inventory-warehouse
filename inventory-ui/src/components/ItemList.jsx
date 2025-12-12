@@ -1,4 +1,5 @@
-// src/components/ItemList.jsx
+// src/components/ItemList.jsx 
+// ---list of items w/admin actions (edit/delete/transfer).---
 import React from "react";
 
 function ItemList({ items, onDelete, onEdit, isAdmin, onTransfer }) {

@@ -1,3 +1,5 @@
+// inventory-warehouse\src\main\java\com\godsvessel\inventory_warehouse\config\SecurityConfig.java
+//--- handles authorization ---
 package com.godsvessel.inventory_warehouse.config;
 
 import org.springframework.context.annotation.Bean;

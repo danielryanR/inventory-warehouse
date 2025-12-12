@@ -6,7 +6,7 @@ import ItemList from "./components/ItemList.jsx";
 import NewItemForm from "./components/NewItemForm.jsx";
 
 function App() {
-  // ---------- STATE: warehouses, items, edit state, filters, admin mode ----------
+  // ---- STATE: warehouses, items, edit state, filters, admin mode ---
   const [warehouses, setWarehouses] = useState([]);
   const [items, setItems] = useState([]);
 
@@ -30,12 +30,12 @@ function App() {
     quantity: 1,
   });
 
-  // ---------- EFFECT: initial load of warehouses + items ----------
+  // ----- EFFECT: initial load of warehouses + items ---
   useEffect(() => {
     loadData();
   }, []);
 
-  // ---------- API: load all warehouses and items from backend ----------
+  // ---- API: load all warehouses and items from backend ----
   async function loadData() {
     try {
       const [whRes, itemRes] = await Promise.all([
@@ -60,7 +60,7 @@ function App() {
     }
   }
 
-  // ---------- SIMPLE ADMIN "LOGIN" TO GATE DANGEROUS ACTIONS ----------
+  // ----- SIMPLE ADMIN "LOGIN" TO GATE DANGEROUS ACTIONS -----
   function handleAdminLogin() {
     const pwd = window.prompt("Enter admin password");
     if (pwd === "admin123") {
@@ -71,7 +71,7 @@ function App() {
     }
   }
 
-  // ---------- CREATE: add a new item to a specific warehouse ----------
+  // ---- CREATE: add a new item to a specific warehouse -----
   async function handleCreateItem(newItem) {
     try {
       const payload = {
@@ -104,7 +104,7 @@ function App() {
     }
   }
 
-  // ---------- DELETE: remove an item (admin only, with confirm) ----------
+  // ---- DELETE: remove an item (admin only, with confirm) ----
   async function handleDeleteItem(id, name) {
     if (!isAdmin) {
       alert("Admin login required to delete items.");
@@ -130,7 +130,7 @@ function App() {
     }
   }
 
-  // ---------- EDIT: start editing an item (populate edit form) ----------
+  // ---- EDIT: start editing an item  ----
   function handleStartEdit(item) {
     if (!isAdmin) {
       alert("Admin login required to edit items.");
@@ -148,7 +148,7 @@ function App() {
     });
   }
 
-  // ---------- EDIT: handle edit form field changes ----------
+  // ---- EDIT: change 'edit form' fields ---
   function handleEditChange(e) {
     const { name, value } = e.target;
     setEditForm((prev) => ({
@@ -157,7 +157,7 @@ function App() {
     }));
   }
 
-  // ---------- TRANSFER: call backend to move quantity between warehouses ----------
+  // ---- TRANSFER: call backend to move quantity between warehouses ----
   async function handleTransfer(itemId, targetWarehouseId, qty) {
     try {
       const response = await fetch(
@@ -177,7 +177,7 @@ function App() {
     }
   }
 
-  // ---------- TRANSFER MODAL: open with selected item ----------
+  // ---- TRANSFER MODAL: open with selected item ----
   function openTransferModal(item) {
     if (!isAdmin) {
       alert("Admin login required to transfer items.");
@@ -191,12 +191,12 @@ function App() {
     });
   }
 
-  // ---------- TRANSFER MODAL: close ----------
+  // ---------- TRANSFER MODAL: close ----
   function closeTransferModal() {
     setTransferItem(null);
   }
 
-  // ---------- TRANSFER MODAL: handle input change (warehouse / quantity) ----------
+  // ---- TRANSFER MODAL: handle input change (warehouse / quantity) ----
   function handleTransferFormChange(e) {
     const { name, value } = e.target;
     setTransferForm((prev) => ({
@@ -205,7 +205,7 @@ function App() {
     }));
   }
 
-  // ---------- TRANSFER MODAL: submit transfer request ----------
+  // ---- TRANSFER MODAL: submit transfer request ----
   async function handleTransferSubmit(e) {
     e.preventDefault();
     if (!transferItem) return;
@@ -227,7 +227,7 @@ function App() {
     closeTransferModal();
   }
 
-  // ---------- UPDATE: save changes from the edit form to backend ----------
+  // ---- UPDATE: save changes from the edit form to backend ----
   async function handleUpdateItem(e) {
     e.preventDefault();
 
@@ -275,12 +275,12 @@ function App() {
     }
   }
 
-  // ---------- EDIT: cancel edit mode ----------
+  // ---- EDIT: cancel edit mode ----
   function handleCancelEdit() {
     setEditingItem(null);
   }
 
-  // ---------- DERIVED DATA: filter items by selected warehouse ----------
+  // ---- DERIVED DATA: filter items by selected warehouse ----
   const visibleItems =
     selectedWarehouseId === "all"
       ? items
@@ -288,7 +288,7 @@ function App() {
           (i) => i.warehouse && i.warehouse.id === Number(selectedWarehouseId)
         );
 
-  // ---------- RENDER: layout, dashboard, lists, forms, and modals ----------
+  // ---- RENDER: layout, dashboard, lists, forms, and modals ----
   return (
     <div className="page">
       <LayoutHeader isAdmin={isAdmin} onAdminLogin={handleAdminLogin} />

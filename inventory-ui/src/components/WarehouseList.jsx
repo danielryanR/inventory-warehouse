@@ -1,4 +1,5 @@
-// src/components/WarehouseList.jsx
+// src/components/WarehouseList.jsx 
+// ---dynamic list of warehouses---
 function WarehouseList({ warehouses, selectedWarehouseId, onSelect }) {
   return (
     <section className="panel">

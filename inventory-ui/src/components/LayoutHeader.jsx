@@ -1,4 +1,5 @@
-// "Reusable top header with nav and admin toggle."
+// inventory-ui\src\components\LayoutHeader.jsx
+// ---Reusable top header with nav and admin toggle.---
 import React from "react";
 
 function LayoutHeader({ isAdmin, onAdminLogin }) {

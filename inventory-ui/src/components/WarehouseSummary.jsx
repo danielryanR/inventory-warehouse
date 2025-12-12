@@ -1,4 +1,5 @@
-// "Shows all warehouses and lets me filter items by warehouse."
+// inventory-ui\src\components\WarehouseSummary.jsx
+// ---Shows all warehouses and lets me filter items by warehouse.---
 import React from "react";
 
 function WarehouseSummary({
