@@ -1,3 +1,4 @@
+// warehouse service
 package com.godsvessel.inventory_warehouse.service;
 
 import com.godsvessel.inventory_warehouse.model.Warehouse;

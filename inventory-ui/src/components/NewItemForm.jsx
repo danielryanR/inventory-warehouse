@@ -1,6 +1,8 @@
-// src/components/NewItemForm.jsx
+// src/components/NewItemForm.jsx 
+// --Use form to create/add new items---
 import { useState } from "react";
 
+// the form local state
 function NewItemForm({ warehouses, onCreate, isSubmitting }) {
   const [form, setForm] = useState({
     name: "",
@@ -9,16 +11,20 @@ function NewItemForm({ warehouses, onCreate, isSubmitting }) {
     size: "",
     quantity: "",
     warehouseId: "",
-    imageUrl: "",
+    imageUrl: "", // still here just hidden 
   });
 
+  // Update fields on the form
   function handleChange(e) {
     const { name, value } = e.target;
     setForm((prev) => ({ ...prev, [name]: value }));
   }
 
+
+  // Submit form to parents - App.jsx
   async function handleSubmit(e) {
     e.preventDefault();
+
     if (
       !form.name ||
       !form.sku ||
@@ -36,21 +42,24 @@ function NewItemForm({ warehouses, onCreate, isSubmitting }) {
       description: form.description,
       size: form.size,
       quantity: Number(form.quantity),
-      imageUrl: form.imageUrl || null,
       warehouseId: Number(form.warehouseId),
+      imageUrl: form.imageUrl || null,
     };
 
-    await onCreate(payload);
-
-    setForm({
-      name: "",
-      sku: "",
-      description: "",
-      size: "",
-      quantity: "",
-      warehouseId: "",
-      imageUrl: "",
-    });
+    try {
+      await onCreate(payload); // Will make sure that App.jsx will POST to backend
+      setForm({
+        name: "",
+        sku: "",
+        description: "",
+        size: "",
+        quantity: "",
+        warehouseId: "",
+        imageUrl: "",
+      });
+    } catch (err) {
+      console.error("Error in NewItemForm onCreate", err);
+    }
   }
 
   return (
@@ -85,7 +94,7 @@ function NewItemForm({ warehouses, onCreate, isSubmitting }) {
               name="size"
               value={form.size}
               onChange={handleChange}
-              placeholder="M / L / XL"
+              placeholder="S / M / L / XL"
             />
           </label>
           <label>
@@ -118,17 +127,7 @@ function NewItemForm({ warehouses, onCreate, isSubmitting }) {
           </label>
         </div>
 
-        <div className="form-row">
-          <label>
-            Image URL (optional)
-            <input
-              name="imageUrl"
-              value={form.imageUrl}
-              onChange={handleChange}
-              placeholder="https://example.com/image.png"
-            />
-          </label>
-        </div>
+        {/* Image URL is hidden for now */}
 
         <div className="form-row">
           <label>

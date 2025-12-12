@@ -1,68 +1,289 @@
-:root {
-  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
-  line-height: 1.5;
-  font-weight: 400;
-
-  color-scheme: light dark;
-  color: rgba(255, 255, 255, 0.87);
-  background-color: #242424;
-
-  font-synthesis: none;
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
-
-a {
-  font-weight: 500;
-  color: #646cff;
-  text-decoration: inherit;
-}
-a:hover {
-  color: #535bf2;
-}
+/* ---- Layout & Page Shell ----- */
 
 body {
   margin: 0;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  background: radial-gradient(circle at top, #3a3a50, #0d0d15); /* newer background */
+  color: #f5f5f5;
+}
+
+.page {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 2rem 1rem 3rem;
+}
+
+.page-header {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.page-header h1 {
+  font-size: 2.4rem;
+  margin-bottom: 0.3rem;
+}
+
+
+
+.layout {
   display: flex;
-  place-items: center;
-  min-width: 320px;
-  min-height: 100vh;
+  flex-direction: column;
+  gap: 1.5rem;
 }
 
-h1 {
-  font-size: 3.2em;
-  line-height: 1.1;
+/* ---- Top Navigation ---- */
+
+.top-nav {
+  display: flex;
+  justify-content: center;
+  gap: 1.5rem;
+  margin-bottom: 0.75rem;
+  font-size: 0.85rem;
 }
 
-button {
-  border-radius: 8px;
-  border: 1px solid transparent;
-  padding: 0.6em 1.2em;
-  font-size: 1em;
-  font-weight: 500;
-  font-family: inherit;
-  background-color: #1a1a1a;
+.top-nav a {
+  text-decoration: none;
+  color: #b3b3d1;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+}
+
+.top-nav a:hover {
+  color: #ffffff;
+}
+
+/* ---- Cards ---- */
+
+.card {
+  background: rgba(20, 20, 30, 0.9);
+  border-radius: 14px;
+  padding: 1.2rem 1.4rem;
+  box-shadow: 0 14px 30px rgba(0, 0, 0, 0.35);
+  border: 1px solid rgba(120, 120, 180, 0.3);
+}
+
+.card-wide {
+  width: 100%;
+}
+
+.section-title {
+  margin: 0 0 0.3rem;
+  font-size: 1.4rem;
+}
+
+.section-subtitle {
+  margin: 0 0 1rem;
+  color: #9e9ec0;
+  font-size: 0.9rem;
+}
+
+/* ---- Warehouse List ---- */
+
+.warehouse-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.warehouse-list li {
+  padding: 0.4rem 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.warehouse-list li:last-child {
+  border-bottom: none;
+}
+
+.capacity-badge {
+  margin-left: 0.5rem;
+  padding: 0.15rem 0.5rem;
+  font-size: 0.75rem;
+  border-radius: 999px;
+  background: rgba(110, 178, 255, 0.16);
+}
+
+/* ---- Table ---- */
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 0.7rem;
+  font-size: 0.92rem;
+}
+
+.table th,
+.table td {
+  padding: 0.4rem 0.6rem;
+  text-align: left;
+}
+
+.table thead {
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.table tbody tr:nth-child(even) {
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.actions-col {
+  white-space: nowrap;
+}
+
+/* ---- Buttons ---- */
+
+.btn {
+  border: none;
+  border-radius: 999px;
+  padding: 0.35rem 0.9rem;
+  font-size: 0.85rem;
   cursor: pointer;
-  transition: border-color 0.25s;
-}
-button:hover {
-  border-color: #646cff;
-}
-button:focus,
-button:focus-visible {
-  outline: 4px auto -webkit-focus-ring-color;
+  margin-right: 0.35rem;
+  transition: transform 0.08s ease, box-shadow 0.08s ease, background 0.1s ease;
 }
 
-@media (prefers-color-scheme: light) {
-  :root {
-    color: #213547;
-    background-color: #ffffff;
+.btn-primary {
+  background: #6d5dfc;
+  color: #fff;
+  box-shadow: 0 6px 16px rgba(109, 93, 252, 0.35);
+}
+
+.btn-primary:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 8px 22px rgba(109, 93, 252, 0.5);
+}
+
+.btn-secondary {
+  background: #33394b;
+  color: #f2f2f2;
+}
+
+.btn-secondary:hover {
+  background: #444b63;
+}
+
+.btn-danger {
+  background: #dd2121;
+  color: #fff;
+}
+
+.btn-danger:hover {
+  background: #e93737;
+}
+
+/* ---- Edit Panel & Forms ---- */
+
+.edit-panel {
+  border-left: 3px solid #6d5dfc;
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 0.75rem 1rem;
+  margin-top: 0.6rem;
+}
+
+.form-grid label {
+  display: flex;
+  flex-direction: column;
+  font-size: 0.85rem;
+  gap: 0.2rem;
+}
+
+.form-grid input,
+.form-grid select {
+  border-radius: 8px;
+  border: 1px solid rgba(200, 200, 255, 0.4);
+  padding: 0.35rem 0.5rem;
+  background: #151522;
+  color: #f5f5ff;
+}
+
+.edit-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 0.4rem;
+}
+
+/* ---- Typography Pop ---- */
+
+h1,
+h2,
+h3,
+.section-title {
+  color: #ffffff;
+  text-shadow: 0 0 6px rgba(140, 140, 255, 0.35);
+  letter-spacing: 0.5px;
+}
+
+p,
+label,
+span {
+  color: #e2e2ff;
+}
+
+/* ---- Misc / Legacy ---- */
+
+@media (prefers-reduced-motion: no-preference) {
+  a:nth-of-type(2) .logo {
+    animation: logo-spin infinite 20s linear;
   }
-  a:hover {
-    color: #747bff;
-  }
-  button {
-    background-color: #f9f9f9;
-  }
+}
+
+.read-the-docs {
+  color: #888;
+}
+
+/* ---- Footer --- */
+
+.app-footer {
+  margin-top: 2.5rem;
+  padding: 1.2rem 0;
+  text-align: center;
+  font-size: 0.9rem;
+  color: #bdbdfd;
+  opacity: 0.85;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.app-footer p {
+  margin: 0;
+  letter-spacing: 0.06em;
+  text-shadow: 0 0 4px rgba(180, 180, 255, 0.2);
+}
+
+/* --- Top Row (title + admin login) --- */
+.header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.8rem;
+}
+
+/* --- Middle Nav Row --- */
+.middle-nav {
+  display: flex;
+  justify-content: center;
+  gap: 3.5rem;       /* spacing between Dashboard / Warehouses / Items */
+  margin-bottom: 0.8rem;
+}
+
+.middle-nav a {
+  font-size: 1.05rem;
+  text-transform: uppercase;
+  color: #d7d7ff;
+  letter-spacing: 0.1em;
+}
+
+.middle-nav a:hover {
+  color: #ffffff;
+}
+
+
+.tagline {
+  margin-top: 0.4rem;
+  align-items: center;
+  font-size: 0.9rem;
+  opacity: 0.85;
 }
