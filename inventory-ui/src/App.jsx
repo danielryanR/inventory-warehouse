@@ -1,144 +1,255 @@
 // src/App.jsx
-import { useEffect, useState } from "react";
-import "./App.css";
-
-import WarehouseList from "./components/WarehouseList";
+import React, { useEffect, useState } from "react";
 import ItemList from "./components/ItemList";
 import NewItemForm from "./components/NewItemForm";
-
-const API_BASE_URL = "http://localhost:8080/api";
 
 function App() {
   const [warehouses, setWarehouses] = useState([]);
   const [items, setItems] = useState([]);
-  const [selectedWarehouseId, setSelectedWarehouseId] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [loadingError, setLoadingError] = useState("");
-  const [submitting, setSubmitting] = useState(false);
 
-  // Load warehouses and items on first render
+  const [editingItem, setEditingItem] = useState(null);
+  const [editForm, setEditForm] = useState({
+    id: null,
+    name: "",
+    sku: "",
+    size: "",
+    quantity: "",
+    warehouseId: "",
+  });
+
   useEffect(() => {
-    async function loadData() {
-      try {
-        setLoading(true);
-        setLoadingError("");
-
-        const [warehouseRes, itemRes] = await Promise.all([
-          fetch(`${API_BASE_URL}/warehouses`),
-          fetch(`${API_BASE_URL}/items`),
-        ]);
-
-        if (!warehouseRes.ok) {
-          throw new Error("Failed to load warehouses");
-        }
-        if (!itemRes.ok) {
-          throw new Error("Failed to load items");
-        }
-
-        const warehouseData = await warehouseRes.json();
-        const itemData = await itemRes.json();
-
-        setWarehouses(warehouseData);
-        setItems(itemData);
-      } catch (err) {
-        console.error(err);
-        setLoadingError(err.message || "Error loading data");
-      } finally {
-        setLoading(false);
-      }
-    }
-
     loadData();
   }, []);
 
-  // CREATE item
-  async function handleCreateItem(newItem) {
+  async function loadData() {
     try {
-      setSubmitting(true);
+      const [whRes, itemRes] = await Promise.all([
+        fetch("http://localhost:8080/api/warehouses"),
+        fetch("http://localhost:8080/api/items"),
+      ]);
 
-      const res = await fetch(`${API_BASE_URL}/items`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(newItem),
-      });
-
-      if (!res.ok) {
-        const text = await res.text();
-        throw new Error(text || "Failed to create item");
+      if (!whRes.ok || !itemRes.ok) {
+        throw new Error("Failed to load data");
       }
 
-      const created = await res.json();
-      setItems((prev) => [...prev, created]);
+      const [whData, itemData] = await Promise.all([
+        whRes.json(),
+        itemRes.json(),
+      ]);
+
+      setWarehouses(whData);
+      setItems(itemData);
     } catch (err) {
-      console.error(err);
-      alert("Error creating item: " + err.message);
-    } finally {
-      setSubmitting(false);
+      console.error("Error: Failed to load items", err);
     }
   }
 
-  // DELETE item
+  // DELETE
   async function handleDeleteItem(id) {
-    const confirmDelete = window.confirm(
-      "Are you sure you want to delete this item?"
-    );
-    if (!confirmDelete) return;
-
     try {
-      const res = await fetch(`${API_BASE_URL}/items/${id}`, {
+      const response = await fetch(`http://localhost:8080/api/items/${id}`, {
         method: "DELETE",
       });
 
-      if (!res.ok) {
-        const text = await res.text();
-        throw new Error(text || "Failed to delete item");
+      if (!response.ok) {
+        throw new Error("Failed to delete item");
       }
 
-      // Remove from state
-      setItems((prev) => prev.filter((item) => item.id !== id));
+      setItems((prev) => prev.filter((i) => i.id !== id));
     } catch (err) {
       console.error(err);
-      alert("Error deleting item: " + err.message);
     }
   }
 
+  // ----- EDIT SUPPORT -----
+  function handleStartEdit(item) {
+    setEditingItem(item);
+    setEditForm({
+      id: item.id,
+      name: item.name,
+      sku: item.sku,
+      size: item.size,
+      quantity: item.quantity,
+      warehouseId: item.warehouse?.id || "",
+    });
+  }
+
+  function handleEditChange(e) {
+    const { name, value } = e.target;
+    setEditForm((prev) => ({
+      ...prev,
+      [name]: name === "quantity" ? Number(value) : value,
+    }));
+  }
+
+  async function handleUpdateItem(e) {
+    e.preventDefault();
+
+    const payload = {
+      id: editForm.id,
+      name: editForm.name,
+      sku: editForm.sku,
+      size: editForm.size,
+      quantity: editForm.quantity,
+      warehouse: {
+        id: editForm.warehouseId,
+      },
+    };
+
+    try {
+      const response = await fetch(
+        `http://localhost:8080/api/items/${editForm.id}`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(payload),
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error("Failed to update item");
+      }
+
+      const updated = await response.json();
+
+      setItems((prev) =>
+        prev.map((item) => (item.id === updated.id ? updated : item))
+      );
+
+      setEditingItem(null);
+    } catch (err) {
+      console.error("Error updating item", err);
+    }
+  }
+
+  function handleCancelEdit() {
+    setEditingItem(null);
+  }
+
+  // ----- RENDER -----
   return (
-    <div className="app-root">
-      <header className="app-header">
+    <div className="page">
+      <header className="page-header">
         <h1>Inventory Warehouse Dashboard</h1>
-        <p className="muted">
-          Full stack flow: React → Spring Boot → PostgreSQL → back to React.
-        </p>
+        <p className="tagline">Full stack flow: React → Spring Boot → PostgreSQL</p>
       </header>
 
-      {loading && <div className="banner info">Loading data...</div>}
-      {loadingError && (
-        <div className="banner error">Error: {loadingError}</div>
-      )}
-
       <main className="layout">
-        <div className="layout-left">
-          <WarehouseList
-            warehouses={warehouses}
-            selectedWarehouseId={selectedWarehouseId}
-            onSelect={setSelectedWarehouseId}
-          />
-        </div>
+        {/* Warehouses */}
+        <section className="card card-wide">
+          <h2 className="section-title">Warehouses</h2>
+          <ul className="warehouse-list">
+            {warehouses.map((wh) => (
+              <li key={wh.id}>
+                <strong>{wh.name}</strong>
+                <div>
+                  {wh.location}, NC
+                  <span className="capacity-badge">
+                    Max Capacity: {wh.maxCapacity}
+                  </span>
+                </div>
+              </li>
+            ))}
+          </ul>
+        </section>
 
-        <div className="layout-right">
+        {/* Items table */}
+        <section className="card card-wide">
           <ItemList
             items={items}
-            selectedWarehouseId={selectedWarehouseId}
             onDelete={handleDeleteItem}
+            onEdit={handleStartEdit}
           />
+        </section>
+
+        {/* Edit panel */}
+        {editingItem && (
+          <section className="card card-wide edit-panel">
+            <h2 className="section-title">Edit Item</h2>
+            <form className="form-grid" onSubmit={handleUpdateItem}>
+              <label>
+                Name
+                <input
+                  name="name"
+                  value={editForm.name}
+                  onChange={handleEditChange}
+                  required
+                />
+              </label>
+
+              <label>
+                SKU
+                <input
+                  name="sku"
+                  value={editForm.sku}
+                  onChange={handleEditChange}
+                  required
+                />
+              </label>
+
+              <label>
+                Size
+                <input
+                  name="size"
+                  value={editForm.size}
+                  onChange={handleEditChange}
+                />
+              </label>
+
+              <label>
+                Quantity
+                <input
+                  type="number"
+                  name="quantity"
+                  min="0"
+                  value={editForm.quantity}
+                  onChange={handleEditChange}
+                  required
+                />
+              </label>
+
+              <label>
+                Warehouse
+                <select
+                  name="warehouseId"
+                  value={editForm.warehouseId}
+                  onChange={handleEditChange}
+                  required
+                >
+                  <option value="">Select warehouse</option>
+                  {warehouses.map((wh) => (
+                    <option key={wh.id} value={wh.id}>
+                      {wh.name}
+                    </option>
+                  ))}
+                </select>
+              </label>
+
+              <div className="edit-actions">
+                <button className="btn btn-primary" type="submit">
+                  Save Changes
+                </button>
+                <button
+                  className="btn btn-secondary"
+                  type="button"
+                  onClick={handleCancelEdit}
+                >
+                  Cancel
+                </button>
+              </div>
+            </form>
+          </section>
+        )}
+
+        {/* New item form (whatever you already had) */}
+        <section className="card card-wide">
           <NewItemForm
             warehouses={warehouses}
-            onCreate={handleCreateItem}
-            isSubmitting={submitting}
+            onCreated={loadData}
           />
-        </div>
+        </section>
       </main>
     </div>
   );
