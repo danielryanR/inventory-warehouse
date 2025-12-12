@@ -1,7 +1,8 @@
 // src/App.jsx
 import React, { useEffect, useState } from "react";
-import ItemList from "./components/ItemList";
-import NewItemForm from "./components/NewItemForm";
+import ItemList from "./components/ItemList.jsx";
+import NewItemForm from "./components/NewItemForm.jsx";
+import WarehouseList from "./components/WarehouseList.jsx";
 
 function App() {
   const [warehouses, setWarehouses] = useState([]);
